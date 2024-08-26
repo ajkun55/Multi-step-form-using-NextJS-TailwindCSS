@@ -1,112 +1,141 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  const [inputs, setInputs] = useState({ username: "", email: "", phone: "" });
+  const [isError, setIsError] = useState({
+    username: false,
+    email: false,
+    phone: false,
+  });
+  const [isFocused, setIsFocused] = useState({
+    username: false,
+    email: false,
+    phone: false,
+  });
+  function handleChange(event) {
+    setInputs({ ...inputs, [event.target.name]: event.target.value });
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const username = formData.get("username").trim();
+    const email = formData.get("email").trim();
+    const phone = formData.get("phone").trim();
+    //const { username, email, phone } = inputs;
+    const re = /\S+@\S+\.\S+/;
+    const phoneRe =
+      /^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
+    !username ? handleError("username") : handleNoError("username");
+    !email || !re.test(email) ? handleError("email") : handleNoError("email");
+    !phone || !phoneRe.test(phone)
+      ? handleError("phone")
+      : handleNoError("phone");
+
+    setInputs({ username, email, phone });
+    if (!isError.username && !isError.email && !isError.phone) {
+      return router.push("/selectPlan");
+    }
+  }
+  function handleError(input) {
+    let newList = isError;
+    newList[input] = true;
+    setIsError(newList);
+  }
+  function handleNoError(input) {
+    let newList = isError;
+    newList[input] = false;
+    setIsError(newList);
+  }
+  const handleInputFocus = (input) => {
+    setIsFocused({ ...isFocused, [input]: true });
+  };
+  const handleInputBlur = (input) => {
+    setIsFocused({ ...isFocused, [input]: false });
+  };
+  const errorMsg = (
+    <p className="text-Strawberry-red font-medium">This field is required</p>
+  );
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.js</code>
+    <main className="relative lg:min-w-[33.5rem]">
+      <div className="flex flex-col md:justify-center bg-White rounded-2xl w-11/12 mx-auto lg:w-[450px] md:p-0 -translate-y-16 md:translate-y-0">
+        <h1 className="text-Marine-blue text-2xl my-3 px-6 pt-4 font-bold md:text-[2rem] md:px-0 md:mt-8">
+          Personal info
+        </h1>
+        <p className="text-Cool-gray px-6  md:px-0">
+          Please provide your name, email address, and phone number.
         </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3 my-2 p-6 text-Marine-blue  md:px-0"
         >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+          <span>
+            <label>Name</label> {isError.username && errorMsg}
+          </span>
+          <input
+            type="text"
+            name="username"
+            value={inputs.username || ""}
+            onChange={handleChange}
+            onFocus={() => handleInputFocus("username")}
+            onBlur={() => handleInputBlur("username")}
+            className={`${
+              isFocused.username && "border-Marine-blue outline-Marine-blue"
+            } ${
+              isError.username && "border-Strawberry-red"
+            } border font-medium p-2 rounded-md border-Light-gray`}
+            placeholder="e.g. Stephen King"
+          />
+          <span>
+            <label>Email Address </label>
+            {isError.email && errorMsg}
+          </span>
+          <input
+            type="text"
+            name="email"
+            value={inputs.email || ""}
+            onChange={handleChange}
+            onFocus={() => handleInputFocus("email")}
+            onBlur={() => handleInputBlur("email")}
+            className={`${
+              isFocused.email && "border-Marine-blue outline-Marine-blue"
+            } ${
+              isError.email && "border-Strawberry-red"
+            } border font-medium p-2 rounded-md border-Light-gray`}
+            placeholder="e.g. stephenking@lorem.com"
+          />
+          <span>
+            <label>Phone Number </label>
+            {isError.phone && errorMsg}
+          </span>
+          <input
+            type="text"
+            name="phone"
+            value={inputs.phone || ""}
+            onChange={handleChange}
+            onFocus={() => handleInputFocus("phone")}
+            onBlur={() => handleInputBlur("phone")}
+            className={`${
+              isFocused.phone && "border-Marine-blue outline-Marine-blue"
+            } ${
+              isError.phone && "border-Strawberry-red"
+            } border font-medium p-2 rounded-md border-Light-gray`}
+            placeholder="e.g. +1 234 567 890"
+          />
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+          <div className="absolute -bottom-[27%] -left-4 flex justify-end bg-Alabaster w-screen md:relative md:w-auto md:left-0 md:bg-White">
+            <button
+              type="submit"
+              className="bg-Marine-blue text-White rounded-md w-[125px] mr-[4%] p-2 my-3 md:mt-10 hover:brightness-150 md:mr-0"
+            >
+              Next Step
+            </button>
+          </div>
+        </form>
       </div>
     </main>
   );
